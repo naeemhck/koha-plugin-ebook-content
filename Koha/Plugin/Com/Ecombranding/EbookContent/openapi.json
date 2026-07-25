@@ -1,0 +1,24 @@
+{
+  "/ebooks/{biblio_id}/metadata": {
+    "get": {
+      "x-mojo-to": "Com::Ecombranding::EbookContent::Controller#metadata",
+      "operationId": "getEbookContentMetadata",
+      "tags": ["ebookcontent"],
+      "produces": ["application/json"],
+      "parameters": [{"name":"biblio_id","in":"path","required":true,"type":"integer","minimum":1}],
+      "responses": {"200":{"description":"Safe eBook metadata","schema":{"type":"object"}},"401":{"description":"Authentication required"},"403":{"description":"Not authorized"},"404":{"description":"Not found"},"409":{"description":"Invalid mapping"},"415":{"description":"Not a PDF"},"500":{"description":"Internal error"}},
+      "x-koha-authorization": {"permissions": {}}
+    }
+  },
+  "/ebooks/{biblio_id}/content": {
+    "get": {
+      "x-mojo-to": "Com::Ecombranding::EbookContent::Controller#content",
+      "operationId": "getEbookContent",
+      "tags": ["ebookcontent"],
+      "produces": ["application/pdf"],
+      "parameters": [{"name":"biblio_id","in":"path","required":true,"type":"integer","minimum":1}],
+      "responses": {"200":{"description":"Complete PDF","schema":{"type":"file"}},"206":{"description":"Single byte range","schema":{"type":"file"}},"401":{"description":"Authentication required"},"403":{"description":"Not authorized"},"404":{"description":"Not found"},"409":{"description":"Invalid mapping"},"415":{"description":"Not a PDF"},"416":{"description":"Range not satisfiable"},"500":{"description":"Internal error"}},
+      "x-koha-authorization": {"permissions": {}}
+    }
+  }
+}

@@ -1,0 +1,65 @@
+[% USE raw %]
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha Controlled eBook Content API</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="plugins_ebookcontent" class="plugins">
+[% WRAPPER 'header.inc' %]
+  [% INCLUDE 'prefs-admin-search.inc' %]
+[% END %]
+<div id="main" class="container-fluid">
+  <h1>Koha Controlled eBook Content API</h1>
+  [% IF message %]<div class="alert alert-info">[% message | html %]</div>[% END %]
+  [% IF error %]<div class="alert alert-danger">[% error | html %]</div>[% END %]
+
+  <h2>API configuration</h2>
+  <form method="post">
+    <input type="hidden" name="class" value="[% CLASS | html %]">
+    <input type="hidden" name="method" value="configure">
+    <input type="hidden" name="op" value="cud-settings">
+    <input type="hidden" name="csrf_token" value="[% csrf_token | html %]">
+    <fieldset class="rows"><ol>
+      <li><label for="api_enabled">Enable API</label><input id="api_enabled" name="api_enabled" type="checkbox" value="1" [% IF api_enabled %]checked[% END %]></li>
+      <li><label>Allowed upload category</label><span>EBOOK_PDF (fixed)</span></li>
+      <li><label for="service_account_ids">Authorized service-account patron IDs</label><input id="service_account_ids" name="service_account_ids" value="[% service_account_ids | html %]" placeholder="12,34"></li>
+      <li><label for="max_range_bytes">Maximum range bytes</label><input id="max_range_bytes" name="max_range_bytes" type="number" min="0" max="1073741824" value="[% max_range_bytes | html %]"><span class="hint">0 disables the range-size cap.</span></li>
+    </ol></fieldset>
+    <button class="btn btn-primary" type="submit">Save settings</button>
+  </form>
+
+  <h2>Verify and link an existing Koha upload</h2>
+  <p>Upload PDFs with Tools &rsaquo; Upload. This page never uploads or copies PDF content.</p>
+  <form method="post">
+    <input type="hidden" name="class" value="[% CLASS | html %]">
+    <input type="hidden" name="method" value="configure">
+    <input type="hidden" name="op" value="cud-link">
+    <input type="hidden" name="csrf_token" value="[% csrf_token | html %]">
+    <fieldset class="rows"><ol>
+      <li><label for="biblionumber">Biblio ID</label><input id="biblionumber" name="biblionumber" type="number" min="1" required></li>
+      <li><label for="upload_id">Koha Upload ID</label><input id="upload_id" name="upload_id" type="number" min="1" required></li>
+    </ol></fieldset>
+    <button class="btn btn-primary" type="submit">VERIFY AND LINK FILE</button>
+  </form>
+
+  <h2>Current mappings</h2>
+  <table class="table table-striped">
+    <thead><tr><th>Biblio ID</th><th>Upload ID</th><th>Filename</th><th>Size</th><th>SHA-256</th><th>Active</th><th>Updated</th><th>Action</th></tr></thead>
+    <tbody>
+    [% FOREACH row IN mappings %]
+      <tr>
+        <td>[% row.biblionumber | html %]</td><td>[% row.uploaded_file_id | html %]</td>
+        <td>[% row.original_filename_cache | html %]</td><td>[% row.file_size_cache | html %]</td>
+        <td><code>[% row.sha256_cache | html %]</code></td><td>[% IF row.active %]Yes[% ELSE %]No[% END %]</td>
+        <td>[% row.updated_at | html %]</td>
+        <td><form method="post">
+          <input type="hidden" name="class" value="[% CLASS | html %]"><input type="hidden" name="method" value="configure">
+          <input type="hidden" name="op" value="cud-toggle"><input type="hidden" name="csrf_token" value="[% csrf_token | html %]">
+          <input type="hidden" name="biblionumber" value="[% row.biblionumber | html %]"><input type="hidden" name="active" value="[% IF row.active %]0[% ELSE %]1[% END %]">
+          <button class="btn btn-default btn-xs" type="submit">[% IF row.active %]Deactivate[% ELSE %]Activate[% END %]</button>
+        </form></td>
+      </tr>
+    [% END %]
+    </tbody>
+  </table>
+</div>
+[% INCLUDE 'intranet-bottom.inc' %]
